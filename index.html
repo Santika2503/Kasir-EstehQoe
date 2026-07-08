@@ -27,11 +27,11 @@
         body { background-color: var(--light-bg); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 90px; }
         
         /* HEADER */
-        header { background: var(--primary-grad); color: var(--white); padding: 25px 20px 20px; text-align: center; box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3); border-radius: 0 0 24px 24px; position: relative; overflow: hidden; }
+        header { background: var(--primary-grad); color: var(--white); padding: 25px 20px 20px; text-align: center; box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3); border-radius: 0 0 25px 25px; position: relative; overflow: hidden; }
         header h1 { 
             font-family: 'Caveat', 'Delius', cursive, sans-serif;
-            font-size: 36px;
-            font-weight: 700; 
+            font-size: 45px;
+            font-weight: 900; 
             letter-spacing: 0.5px; 
             text-shadow: 0 3px 6px rgba(0,0,0,0.15); 
             margin-bottom: 4px; 
@@ -41,7 +41,7 @@
             gap: 8px; 
             text-transform: none;
         }
-        header h1 .icon-logo { font-size: 32px; font-family: sans-serif; }
+        header h1 .icon-logo { font-size: 50px; font-family: sans-serif; }
         header h1 .highlight { 
             font-family: 'Caveat', 'Delius', cursive, sans-serif;
             background: rgba(255, 255, 255, 0.25); 
@@ -110,7 +110,32 @@
         .report-list-sub { padding-left: 15px; font-size: 13px; margin-bottom: 4px; color: #57606f; }
         .btn-export-excel { background-color: #718093; color: white; border: none; width: 100%; padding: 12px; font-size: 14px; font-weight: 700; border-radius: 10px; cursor: pointer; margin-top: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         
-        footer { background-color: #2c3e50; color: #a4b0be; text-align: center; padding: 15px; margin-top: 20px; font-size: 11px; }
+                footer { 
+            background-color: #2c3e50; 
+            color: #a4b0be; 
+            text-align: center; 
+            padding: 15px; 
+            margin-top: 20px; 
+            font-size: 11px; 
+            width: 100%;
+            position: relative; /* Agar tidak melayang */
+            clear: both;        /* Agar tidak naik ke atas menu */
+        }
+                @keyframes goyang {
+            0% { transform: rotate(0deg); }
+            20% { transform: rotate(-15deg); }
+            40% { transform: rotate(15deg); }
+            60% { transform: rotate(-10deg); }
+            80% { transform: rotate(10deg); }
+            100% { transform: rotate(0deg); }
+        }
+
+        .icon-logo {
+            display: inline-block;
+            animation: goyang 3s ease-in-out infinite;
+        }
+
+
         .watermark { font-weight: 800; color: #ff9f43; }
     </style>
 </head>
@@ -213,10 +238,22 @@
 
         <!-- TAB 5: LAPORAN -->
         <div id="laporan" class="tab-content">
-            <div class="card">
-                <div class="form-group" style="display:flex; gap:10px; align-items:flex-end; margin-bottom:0;">
-                    <div style="flex:1;"><label>Pilih Tanggal Audit</label><input type="date" id="filter-tanggal"></div>
-                    <button class="btn-submit" style="width:auto; padding:12px 20px;" onclick="tampilkanLaporan()">🔎 Cari</button>
+            <div class="form-group">
+    <label>Tipe Laporan</label>
+    <select id="tipe-laporan" onchange="gantiInput()">
+        <option value="harian">Harian</option>
+        <option value="mingguan">Mingguan</option>
+        <option value="bulanan">Bulanan</option>
+    </select>
+</div>
+<div class="form-group">
+    <label id="label-teks">Pilih Tanggal</label>
+    <input type="date" id="filter-tanggal">
+</div>
+<button class="btn-submit" onclick="tampilkanLaporan()">🔎 Cari</button>
+
+</div>
+
                 </div>
             </div>
 
@@ -659,6 +696,15 @@
             };
             reader.readAsText(input.files[0]);
         }
+function gantiInput() {
+    let tipe = document.getElementById('tipe-laporan').value;
+    let input = document.getElementById('filter-tanggal');
+    let label = document.getElementById('label-teks');
+    
+    if(tipe == 'harian') { input.type = 'date'; label.innerText = 'Pilih Tanggal'; }
+    else if(tipe == 'mingguan') { input.type = 'week'; label.innerText = 'Pilih Minggu'; }
+    else if(tipe == 'bulanan') { input.type = 'month'; label.innerText = 'Pilih Bulan'; }
+}
 
                 window.onload = () => { 
             // --- KODE PERAPIAN DATA LAMA ---

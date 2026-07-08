@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Es Teh Qoe - Premium POS</title>
+    <style>
+        :root {
+            --primary: #ff9f43;
+            --primary-grad: linear-gradient(135deg, #ffb142, #ff9f43);
+            --secondary: #f1c40f;
+            --secondary-grad: linear-gradient(135deg, #f39c12, #f1c40f);
+            --dark: #2c3e50;
+            --light-bg: #fdfaf6;
+            --white: #ffffff;
+            --danger: #ee5253;
+            --danger-grad: linear-gradient(135deg, #ff7675, #ee5253);
+            --success: #10ac84;
+            --success-grad: linear-gradient(135deg, #1dd1a1, #10ac84);
+            --info-grad: linear-gradient(135deg, #54a0ff, #2e86de);
+            --teal-grad: linear-gradient(135deg, #00d2d3, #01a3a4);
+            --shadow: 0 10px 25px rgba(255, 159, 67, 0.08);
+            --radius: 16px;
+        }
+        
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: var(--light-bg); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 90px; }
+        
+        /* --- HEADER & LOGO SUPER MENARIK --- */
+        header { background: var(--primary-grad); color: var(--white); padding: 25px 20px 20px; text-align: center; box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3); border-radius: 0 0 24px 24px; position: relative; overflow: hidden; }
+        header::before { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%); pointer-events: none; }
+        header h1 { font-size: 28px; font-weight: 900; letter-spacing: 1px; text-shadow: 0 3px 6px rgba(0,0,0,0.15); margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; position: relative; z-index: 1; text-transform: uppercase; }
+        header h1 .icon-logo { font-size: 32px; animation: float 3s ease-in-out infinite; filter: drop-shadow(0 3px 5px rgba(0,0,0,0.2)); }
+        header h1 .highlight { background: rgba(255, 255, 255, 0.25); padding: 2px 10px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.5); backdrop-filter: blur(5px); color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        header .tagline { font-size: 10px; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; background: var(--dark); color: var(--primary); padding: 4px 14px; border-radius: 20px; display: inline-block; position: relative; z-index: 1; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-5px) rotate(8deg); }
+        }
+        
+        /* NAVIGASI BAWAH */
+        nav { display: flex; background: var(--white); position: fixed; bottom: 0; left: 0; right: 0; height: 70px; justify-content: space-around; align-items: center; box-shadow: 0 -8px 30px rgba(0,0,0,0.06); z-index: 1000; border-top: 1px solid rgba(0,0,0,0.03); border-radius: 20px 20px 0 0; }
+        nav button { background: none; border: none; color: #84817a; padding: 8px 0; cursor: pointer; font-weight: 600; font-size: 11px; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; transition: all 0.25s ease; }
+        nav button .icon { font-size: 20px; transition: transform 0.2s; }
+        nav button.active { color: var(--primary); font-weight: 700; }
+        nav button.active .icon { transform: translateY(-2px) scale(1.1); filter: drop-shadow(0 4px 6px rgba(255, 159, 67, 0.3)); }
+
+        main { padding: 15px; max-width: 1280px; margin: 0 auto; width: 100%; }
+        .tab-content { display: none; animation: fadeIn 0.35s cubic-bezier(0.4, 0, 0.2, 1); }
+        .tab-content.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* DASHBOARD LAYOUT */
+        .dash-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 20px; }
+        .dash-card { background: var(--white); padding: 15px 10px; border-radius: var(--radius); box-shadow: var(--shadow); text-align: center; border: 1px solid rgba(255, 159, 67, 0.05); }
+        .dash-card h4 { font-size: 11px; text-transform: uppercase; color: #7f8c8d; margin-bottom: 5px; font-weight: 700; }
+        .dash-card p { font-size: 16px; font-weight: 800; color: var(--dark); }
+
+        /* PENJUALAN KASIR */
+        .kasir-container { display: flex; flex-direction: column; gap: 20px; }
+        .menu-section { width: 100%; }
+        .cart-section { width: 100%; background: var(--white); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid rgba(255, 159, 67, 0.1); }
+        
+        .menu-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .menu-card { background: var(--white); padding: 15px 10px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow); cursor: pointer; transition: all 0.2s ease; border: 2px solid transparent; }
+        .menu-card:active { transform: scale(0.95); background-color: #fffdf0; border-color: var(--secondary); }
+        .menu-name { font-weight: 700; margin-bottom: 6px; font-size: 13px; color: #2c3e50; min-height: 35px; display: flex; align-items: center; justify-content: center; }
+        .menu-price { color: #e67e22; font-weight: 800; margin-bottom: 6px; font-size: 14px; }
+        .menu-cup { font-size: 10px; background: #fffdf0; padding: 3px 8px; border-radius: 20px; color: #f39c12; font-weight: 700; border: 1px solid rgba(241, 196, 15, 0.3); }
+
+        .cart-title { border-bottom: 2px solid #f1f2f6; padding-bottom: 10px; margin-bottom: 15px; font-size: 16px; color: var(--dark); font-weight: 700; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px dashed #f1f2f6; padding: 12px 0; font-size: 13px; }
+        .cart-total { font-size: 20px; font-weight: 800; margin-top: 18px; text-align: right; color: #27ae60; }
+        .btn-bayar { background: var(--primary-grad); color: white; border: none; width: 100%; padding: 14px; font-size: 16px; font-weight: 700; border-radius: 12px; cursor: pointer; margin-top: 18px; box-shadow: 0 6px 15px rgba(255, 159, 67, 0.3); }
+        .btn-remove { background: #fff5f5; color: var(--danger); border: 1px solid #fed7d7; padding: 5px 10px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: 600; }
+
+        /* CARDS & FORMS */
+        .card { background: var(--white); padding: 20px; border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 15px; border: 1px solid rgba(255, 159, 67, 0.05); }
+        .card h3 { margin-bottom: 15px; font-size: 15px; color: var(--dark); font-weight: 700; }
+        .form-row { display: flex; flex-direction: column; gap: 10px; }
+        .form-group { margin-bottom: 10px; width: 100%; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: 600; font-size: 12px; color: #57606f; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ced6e0; border-radius: 10px; font-size: 14px; background-color: #fafbfc; }
+        .btn-submit { background: var(--primary-grad); color: white; border: none; width: 100%; padding: 12px; font-weight: 700; border-radius: 10px; cursor: pointer; }
+        
+        /* TABLES */
+        .table-responsive { width: 100%; overflow-x: auto; margin-top: 15px; border-radius: var(--radius); }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { padding: 12px 10px; text-align: left; font-size: 12px; border-bottom: 1px solid #f1f2f6; }
+        th { background-color: #2c3e50; color: var(--white); font-weight: 600; }
+        
+        .btn-action { padding: 5px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; border: none; margin-bottom: 4px; display: inline-block; }
+        .btn-edit { background-color: #ffeaa7; color: #cf6a13; }
+        .btn-delete { background-color: #ff7675; color: white; }
+
+        /* STOK GRID */
+        .stok-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .stok-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid #f1f2f6; text-align: center; }
+        .stok-label { font-size: 11px; font-weight: 700; color: #7f8c8d; margin-bottom: 3px; }
+        .stok-val { font-size: 16px; font-weight: 800; color: #2c3e50; }
+
+        footer { background-color: #2c3e50; color: #a4b0be; text-align: center; padding: 15px; margin-top: 20px; font-size: 11px; }
+        .watermark { font-weight: 800; color: #ff9f43; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1><span class="icon-logo">🥤</span> Es Teh <span class="highlight">Qoe</span></h1>
+        <span class="tagline">Premium Fresh Drink</span>
+    </header>
+
+    <nav>
+        <button class="active" onclick="switchTab('dashboard')" id="btn-dashboard"><span class="icon">📊</span>Dashboard</button>
+        <button onclick="switchTab('kasir')" id="btn-kasir"><span class="icon">🛒</span>Penjualan</button>
+        <button onclick="switchTab('stok')" id="btn-stok"><span class="icon">🧊</span>Stok</button>
+        <button onclick="switchTab('pengeluaran')" id="btn-pengeluaran"><span class="icon">💸</span>Pengeluaran</button>
+        <button onclick="switchTab('laporan')" id="btn-laporan"><span class="icon">📋</span>Laporan</button>
+    </nav>
+
+    <main>
+        <!-- TAB 1: DASHBOARD -->
+        <div id="dashboard" class="tab-content active">
+            <div class="dash-grid">
+                <div class="dash-card"><h4>Kas Awal</h4><p id="dash-kas-awal">Rp 0</p></div>
+                <div class="dash-card" style="border-left: 3px solid var(--success)"><h4>Omset</h4><p id="dash-pemasukan" style="color:var(--success)">Rp 0</p></div>
+                <div class="dash-card" style="border-left: 3px solid var(--danger)"><h4>Beban Keluar</h4><p id="dash-pengeluaran" style="color:var(--danger)">Rp 0</p></div>
+                <div class="dash-card" style="border-left: 3px solid #8e44ad"><h4>Sisa Saldo</h4><p id="dash-saldo" style="color:#8e44ad">Rp 0</p></div>
+            </div>
+
+            <div class="card">
+                <h3>💾 Pencadangan Sistem (Backup/Restore)</h3>
+                <div class="form-row" style="gap: 15px;">
+                    <button class="btn-submit" style="background: var(--info-grad);" onclick="backupData()">📥 Amankan Data (.json)</button>
+                    <div style="border-top:1px dashed #ced6e0; padding-top:10px; margin-top:5px;">
+                        <label style="display:block; font-weight:bold; margin-bottom:8px; font-size:12px;">Pulihkan via File Backup:</label>
+                        <input type="file" id="file-restore" accept=".json" style="font-size:12px; margin-bottom:10px;"><br>
+                        <button class="btn-submit" style="background: var(--danger-grad);" onclick="restoreData()">⚙️ Jalankan Pemulihan</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: PENJUALAN -->
+        <div id="kasir" class="tab-content">
+            <div class="kasir-container">
+                <div class="menu-section">
+                    <h3 style="margin-bottom:10px; font-size:15px;">🥤 Ketuk Menu Minuman:</h3>
+                    <div class="menu-grid" id="menu-grid"></div>
+                </div>
+                <div class="cart-section">
+                    <h3 class="cart-title">🛒 Keranjang Belanja</h3>
+                    <div id="cart-items"></div>
+                    <div class="cart-total">Total: <span id="cart-total-rp">Rp 0</span></div>
+                    <button class="btn-bayar" onclick="bayar()">⚡ Simpan Transaksi</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: STOK -->
+        <div id="stok" class="tab-content">
+            <div class="card">
+                <h3>📊 Sisa Ketersediaan Bahan Baku</h3>
+                <div class="stok-grid" id="container-monitoring-stok"></div>
+            </div>
+
+            <div class="card">
+                <h3>📦 Masukkan Stok / Kulakan Masuk</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Nama Logistik</label>
+                        <select id="stok-pilih-item">
+                            <option value="cup_22">Cup 22 Jumbo</option>
+                            <option value="cup_18">Cup 18 Sedang</option>
+                            <option value="cup_16">Cup 16 Standar</option>
+                            <option value="jeruk_peras">Buah Jeruk Peras</option>
+                            <option value="chocolatos_coklat">Chocolatos Coklat</option>
+                            <option value="chocolatos_kurma">Chocolatos Kurma</option>
+                            <option value="chocolatos_matcha">Chocolatos Matcha</option>
+                            <option value="creamy_latte">Creamy Latte</option>
+                            <option value="milo">Milo</option>
+                            <option value="beng_beng">Beng-Beng</option>
+                            <option value="matcha">Matcha</option>
+                            <option value="kurma">Kurma</option>
+                            <option value="coklat">Coklat</option>
+                            <option value="teh_tarik">Teh Tarik</option>
+                            <option value="good_day">Good Day</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Jumlah Tambah (Pcs/Biji)</label><input type="number" id="stok-tambah-qty" placeholder="0"></div>
+                </div>
+                <button class="btn-submit" onclick="tambahStokInventori()">📥 Tambahkan Ke Stok</button>
+            </div>
+        </div>
+
+        <!-- TAB 4: PENGELUARAN -->
+        <div id="pengeluaran" class="tab-content">
+            <div class="card">
+                <h3>Atur Kas Awal Laci Uang</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Tanggal</label><input type="date" id="kas-tanggal"></div>
+                    <div class="form-group"><label>Jumlah Modal (Rp)</label><input type="number" id="kas-jumlah"></div>
+                </div>
+                <button class="btn-submit" onclick="simpanKasAwal()">💾 Simpan Modal</button>
+            </div>
+            <div class="card">
+                <h3>Catat Nota Pengeluaran Biaya</h3>
+                <div class="form-row">
+                    <div class="form-group"><label>Tanggal</label><input type="date" id="pengeluaran-tanggal"></div>
+                    <div class="form-group"><label>Keterangan Pengeluaran</label><input type="text" id="pengeluaran-ket" placeholder="Misal: Beli sedotan / es batu"></div>
+                    <div class="form-group"><label>Nominal (Rp)</label><input type="number" id="pengeluaran-jumlah"></div>
+                </div>
+                <button class="btn-submit" style="background: var(--danger-grad);" onclick="simpanPengeluaran()">📌 Catat Pengeluaran</button>
+            </div>
+        </div>
+
+        <!-- TAB 5: LAPORAN -->
+        <div id="laporan" class="tab-content">
+            <div class="card">
+                <div class="form-group" style="display:flex; gap:10px; align-items:flex-end; margin-bottom:0;">
+                    <div style="flex:1;"><label>Pilih Tanggal Audit</label><input type="date" id="filter-tanggal"></div>
+                    <button class="btn-submit" style="width:auto; padding:12px 20px;" onclick="tampilkanLaporan()">🔎 Cari</button>
+                </div>
+            </div>
+            <div id="area-laporan" style="display:none;">
+                <div class="card">
+                    <h3>📦 Estimasi Cup Terpakai Harian</h3>
+                    <table style="width:100%;">
+                        <tr><td>Cup 22 (Jumbo)</td><td><span id="lap-cup22" style="font-weight:700;">0 Pcs</span></td></tr>
+                        <tr><td>Cup 18 (Sedang)</td><td><span id="lap-cup18" style="font-weight:700;">0 Pcs</span></td></tr>
+                        <tr><td>Cup 16 (Standar)</td><td><span id="lap-cup16" style="font-weight:700;">0 Pcs</span></td></tr>
+                        <tr><td><strong>Total Sedotan</strong></td><td><span id="lap-sedotan" style="color:var(--primary); font-weight:700;">0 Pcs</span></td></tr>
+                        <tr><td><strong>Total Plastik</strong></td><td><span id="lap-plastik" style="color:var(--primary); font-weight:700;">0 Pcs</span></td></tr>
+                    </table>
+                </div>
+                <div class="card">
+                    <h3>📝 Log Aktivitas Jurnal (Bisa Ubah / Hapus)</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead><tr><th>Waktu</th><th>Keterangan</th><th>Tipe</th><th>Nominal</th><th>Aksi</th></tr></thead>
+                            <tbody id="lap-tabel-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>Es Teh Qoe &copy; 2026 | Aplikasi POS Dirancang Khusus Oleh <span class="watermark">Santika</span></footer>
+
+    <script>
+        const masterMenus = [
+            { id: 1, name: "Es Teh Manis", price: 5000, cup: "Cup 22", stockKey: null },
+            { id: 2, name: "Es Teh Lemon", price: 7000, cup: "Cup 22", stockKey: null },
+            { id: 3, name: "Es Milk Tea", price: 5000, cup: "Cup 18", stockKey: null },
+            { id: 4, name: "Es Jeruk Peras", price: 5000, cup: "Cup 18", stockKey: "jeruk_peras" },
+            { id: 5, name: "Es Jeruk + Susu", price: 10000, cup: "Cup 18", stockKey: "jeruk_peras" },
+            { id: 6, name: "Chocolatos Coklat", price: 5000, cup: "Cup 16", stockKey: "chocolatos_coklat" },
+            { id: 7, name: "Chocolatos Kurma", price: 5000, cup: "Cup 16", stockKey: "chocolatos_kurma" },
+            { id: 8, name: "Chocolatos Matcha", price: 5000, cup: "Cup 16", stockKey: "chocolatos_matcha" },
+            { id: 9, name: "Creamy Latte", price: 5000, cup: "Cup 16", stockKey: "creamy_latte" },
+            { id: 10, name: "Milo", price: 5000, cup: "Cup 16", stockKey: "milo" },
+            { id: 11, name: "Beng-Beng", price: 5000, cup: "Cup 16", stockKey: "beng_beng" },
+            { id: 12, name: "Matcha", price: 5000, cup: "Cup 16", stockKey: "matcha" },
+            { id: 13, name: "Kurma", price: 5000, cup: "Cup 16", stockKey: "kurma" },
+            { id: 14, name: "Coklat", price: 5000, cup: "Cup 16", stockKey: "coklat" },
+            { id: 15, name: "Teh Tarik", price: 5000, cup: "Cup 16", stockKey: "teh_tarik" },
+            { id: 16, name: "Good Day", price: 5000, cup: "Cup 16", stockKey: "good_day" }
+        ];
+
+        const labelStok = {
+            cup_22: "Cup 22 Jumbo", cup_18: "Cup 18 Sedang", cup_16: "Cup 16 Standar",
+            jeruk_peras: "Jeruk Peras (Biji)", chocolatos_coklat: "Varian Coklat", chocolatos_kurma: "Varian Kurma",
+            chocolatos_matcha: "Varian Matcha", creamy_latte: "Creamy Latte", milo: "Milo Sachet",
+            beng_beng: "Beng-Beng", matcha: "Matcha Sachet", kurma: "Kurma Sachet", coklat: "Coklat Sachet",
+            teh_tarik: "Teh Tarik", good_day: "Good Day"
+        };
+
+        let stateCart = [];
+        const formatSistemTanggal = () => new Date().toISOString().split('T')[0];
+        const formatMataUangRupiah = (val) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val);
+        const loadSistemData = (k) => JSON.parse(localStorage.getItem(k)) || [];
+        const saveSistemData = (k, v) => localStorage.setItem(k, JSON.stringify(v));
+
+        function initStokGudang() {
+            let gudang = localStorage.getItem('esTeh_gudang_v3');
+            if (!gudang) {
+                let initObj = {};
+                Object.keys(labelStok).forEach(key => initObj[key] = 0);
+                localStorage.setItem('esTeh_gudang_v3', JSON.stringify(initObj));
+            }
+        }
+
+        document.getElementById('kas-tanggal').value = formatSistemTanggal();
+        document.getElementById('pengeluaran-tanggal').value = formatSistemTanggal();
+        document.getElementById('filter-tanggal').value = formatSistemTanggal();
+
+        function switchTab(idTab) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(el => el.classList.remove('active'));
+            document.getElementById(idTab).classList.add('active');
+            document.getElementById('btn-' + idTab).classList.add('active');
+            if(idTab === 'dashboard') updateDashboardSummary();
+            if(idTab === 'stok') updateDisplayStok();
+            if(idTab === 'laporan') tampilkanLaporan();
+        }
+
+        function updateDashboardSummary() {
+            const tgl = formatSistemTanggal();
+            const infoKas = loadSistemData('esTeh_kas').find(x => x.date === tgl) || { amount: 0 };
+            const listSales = loadSistemData('esTeh_sales').filter(x => x.date === tgl);
+            const listExpenses = loadSistemData('esTeh_expenses').filter(x => x.date === tgl);
+
+            let omset = listSales.reduce((sum, x) => sum + x.total, 0);
+            let keluar = listExpenses.reduce((sum, x) => sum + x.amount, 0);
+
+            document.getElementById('dash-kas-awal').innerText = formatMataUangRupiah(infoKas.amount);
+            document.getElementById('dash-pemasukan').innerText = formatMataUangRupiah(omset);
+            document.getElementById('dash-pengeluaran').innerText = formatMataUangRupiah(keluar);
+            document.getElementById('dash-saldo').innerText = formatMataUangRupiah(infoKas.amount + omset - keluar);
+        }
+
+        function renderMenuUtama() {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            masterMenus.forEach(item => {
+                const box = document.createElement('div');
+                box.className = 'menu-card';
+                box.onclick = () => tambahKeranjang(item);
+                box.innerHTML = `<div class="menu-name">${item.name}</div><div class="menu-price">${formatMataUangRupiah(item.price)}</div><span class="menu-cup">${item.cup}</span>`;
+                grid.appendChild(box);
+            });
+        }
+
+        function tambahKeranjang(m) {
+            const ada = stateCart.find(x => x.id === m.id);
+            if (ada) ada.qty += 1; else stateCart.push({ ...m, qty: 1 });
+            renderNotaKeranjang();
+        }
+
+        function hapusItemKeranjang(id) {
+            stateCart = stateCart.filter(x => x.id !== id);
+            renderNotaKeranjang();
+        }
+
+        function renderNotaKeranjang() {
+            const divItems = document.getElementById('cart-items');
+            divItems.innerHTML = '';
+            let hitungTotal = 0;
+            if (stateCart.length === 0) divItems.innerHTML = '<p style="color:#a4b0be; text-align:center; padding:15px 0;">Keranjang kosong.</p>';
+            stateCart.forEach(x => {
+                const sub = x.price * x.qty;
+                hitungTotal += sub;
+                divItems.innerHTML += `<div class="cart-item"><div><strong>${x.name}</strong> (${x.cup})<br>${x.qty}x</div><div style="text-align:right;"><div>${formatMataUangRupiah(sub)}</div><button class="btn-remove" onclick="hapusItemKeranjang(${x.id})">Hapus</button></div></div>`;
+            });
+            document.getElementById('cart-total-rp').innerText = formatMataUangRupiah(hitungTotal);
+        }
+
+        function bayar() {
+            if (stateCart.length === 0) return alert("Keranjang kosong!");
+            
+            let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
+            stateCart.forEach(item => {
+                let cupKey = item.cup === 'Cup 22' ? 'cup_22' : (item.cup === 'Cup 18' ? 'cup_18' : 'cup_16');
+                gudang[cupKey] = Math.max(0, gudang[cupKey] - item.qty);
+                if (item.stockKey) gudang[item.stockKey] = Math.max(0, gudang[item.stockKey] - item.qty);
+            });
+            localStorage.setItem('esTeh_gudang_v3', JSON.stringify(gudang));
+
+            const total = stateCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const dataSales = loadSistemData('esTeh_sales');
+            const finalItems = stateCart.map(x => ({ id: x.id, name: x.name, price: x.price, qty: x.qty, cup: x.cup }));
+            
+            dataSales.push({
+                id: Date.now(),
+                date: formatSistemTanggal(),
+                time: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
+                items: finalItems,
+                total: total,
+                type: 'pemasukan'
+            });
+
+            saveSistemData('esTeh_sales', dataSales);
+            alert("Transaksi Sukses Disimpan!");
+            stateCart = [];
+            renderNotaKeranjang();
+        }
+
+        function simpanKasAwal() {
+            const tgl = document.getElementById('kas-tanggal').value;
+            const jml = parseInt(document.getElementById('kas-jumlah').value);
+            if(!tgl || isNaN(jml)) return alert("Isi form dengan valid!");
+            let kasList = loadSistemData('esTeh_kas');
+            const idx = kasList.findIndex(x => x.date === tgl);
+            if(idx !== -1) kasList[idx].amount = jml; else kasList.push({ date: tgl, amount: jml });
+            saveSistemData('esTeh_kas', kasList);
+            alert("Kas awal modal harian berhasil disimpan!");
+        }
+
+        function simpanPengeluaran() {
+            const tgl = document.getElementById('pengeluaran-tanggal').value;
+            const ket = document.getElementById('pengeluaran-ket').value;
+            const jml = parseInt(document.getElementById('pengeluaran-jumlah').value);
+            if(!tgl || !ket || isNaN(jml)) return alert("Isi form secara lengkap!");
+            const dataExpenses = loadSistemData('esTeh_expenses');
+            dataExpenses.push({ id: Date.now(), date: tgl, time: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}), desc: ket, amount: jml, type: 'pengeluaran' });
+            saveSistemData('esTeh_expenses', dataExpenses);
+            alert("Nota pengeluaran sukses dicatat!");
+            document.getElementById('pengeluaran-ket').value = '';
+            document.getElementById('pengeluaran-jumlah').value = '';
+        }
+
+        function updateDisplayStok() {
+            initStokGudang();
+            let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
+            const container = document.getElementById('container-monitoring-stok');
+            container.innerHTML = '';
+
+            Object.keys(gudang).forEach(key => {
+                container.innerHTML += `
+                    <div class="stok-card">
+                        <div class="stok-label">${labelStok[key]}</div>
+                        <div class="stok-val">${gudang[key]}</div>
+                    </div>
+                `;
+            });
+        }
+
+        function tambahStokInventori() {
+            const keyItem = document.getElementById('stok-pilih-item').value;
+            const qty = parseInt(document.getElementById('stok-tambah-qty').value);
+            if(isNaN(qty) || qty <= 0) return alert("Harap isi kuantitas tambah stok!");
+
+            let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
+            gudang[keyItem] += qty;
+            localStorage.setItem('esTeh_gudang_v3', JSON.stringify(gudang));
+
+            alert(`Sukses menambah +${qty} ke stok ${labelStok[keyItem]}!`);
+            document.getElementById('stok-tambah-qty').value = '';
+            updateDisplayStok();
+        }
+
+        function hapusItemLaporan(id, tipe) {
+            if(!confirm("Hapus permanen transaksi data ini?")) return;
+            if(tipe === 'pemasukan') {
+                let data = loadSistemData('esTeh_sales');
+                data = data.filter(x => x.id !== id);
+                saveSistemData('esTeh_sales', data);
+            } else {
+                let data = loadSistemData('esTeh_expenses');
+                data = data.filter(x => x.id !== id);
+                saveSistemData('esTeh_expenses', data);
+            }
+            tampilkanLaporan();
+        }
+
+        function editItemLaporan(id, tipe) {
+            if(tipe === 'pemasukan') {
+                let data = loadSistemData('esTeh_sales');
+                let item = data.find(x => x.id === id);
+                let nominalBaru = prompt("Ubah Nilai Total Pemasukan Jualan (Rp):", item.total);
+                if(nominalBaru !== null && !isNaN(nominalBaru)) {
+                    item.total = parseInt(nominalBaru);
+                    saveSistemData('esTeh_sales', data);
+                }
+            } else {
+                let data = loadSistemData('esTeh_expenses');
+                let item = data.find(x => x.id === id);
+                let ketBaru = prompt("Ubah Deskripsi Pengeluaran:", item.desc);
+                let nominalBaru = prompt("Ubah Nominal Pengeluaran (Rp):", item.amount);
+                if(ketBaru !== null && nominalBaru !== null && !isNaN(nominalBaru)) {
+                    item.desc = ketBaru;
+                    item.amount = parseInt(nominalBaru);
+                    saveSistemData('esTeh_expenses', data);
+                }
+            }
+            tampilkanLaporan();
+        }
+
+        function tampilkanLaporan() {
+            const tgl = document.getElementById('filter-tanggal').value;
+            if(!tgl) return;
+            document.getElementById('area-laporan').style.display = 'block';
+
+            const listSales = loadSistemData('esTeh_sales').filter(x => x.date === tgl);
+            const listExpenses = loadSistemData('esTeh_expenses').filter(x => x.date === tgl);
+
+            let omsetMasuk = 0, totalKeluar = 0, c22 = 0, c18 = 0, c16 = 0, totalGelas = 0;
+            const targetTbody = document.getElementById('lap-tabel-body');
+            targetTbody.innerHTML = '';
+            let barisJurnal = [];
+
+            listSales.forEach(nota => {
+                omsetMasuk += nota.total;
+                if (nota.items && Array.isArray(nota.items)) {
+                    nota.items.forEach(g => {
+                        totalGelas += g.qty;
+                        if(g.cup === 'Cup 22') c22 += g.qty;
+                        else if(g.cup === 'Cup 18') c18 += g.qty;
+                        else if(g.cup === 'Cup 16') c16 += g.qty;
+                    });
+                }
+                let detail = nota.items ? nota.items.map(z => `${z.qty}x ${z.name}`).join(', ') : "Transaksi Penjualan";
+                barisJurnal.push({ id: nota.id, time: nota.time, desc: "Jual: " + detail, type: 'pemasukan', typeText: '<span style="color:var(--success); font-weight:700;">Pemasukan</span>', amount: nota.total });
+            });
+
+            listExpenses.forEach(nota => {
+                totalKeluar += nota.amount;
+                barisJurnal.push({ id: nota.id, time: nota.time, desc: nota.desc, type: 'pengeluaran', typeText: '<span style="color:var(--danger); font-weight:700;">Pengeluaran</span>', amount: nota.amount });
+            });
+
+            barisJurnal.sort((a, b) => a.id - b.id).forEach(r => {
+                targetTbody.innerHTML += `<tr>
+                    <td>${r.time}</td>
+                    <td>${r.desc}</td>
+                    <td>${r.typeText}</td>
+                    <td>${formatMataUangRupiah(r.amount)}</td>
+                    <td>
+                        <button class="btn-action btn-edit" onclick="editItemLaporan(${r.id}, '${r.type}')">✏️</button>
+                        <button class="btn-action btn-delete" onclick="hapusItemLaporan(${r.id}, '${r.type}')">❌</button>
+                    </td>
+                </tr>`;
+            });
+
+            if(barisJurnal.length === 0) targetTbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#95a5a6;">Belum ada transaksi log harian.</td></tr>';
+
+            document.getElementById('lap-cup22').innerText = c22 + " Pcs";
+            document.getElementById('lap-cup18').innerText = c18 + " Pcs";
+            document.getElementById('lap-cup16').innerText = c16 + " Pcs";
+            document.getElementById('lap-sedotan').innerText = totalGelas + " Pcs";
+            document.getElementById('lap-plastik').innerText = totalGelas + " Pcs";
+            
+            updateDashboardSummary();
+        }
+
+        function backupData() {
+            const obj = { sales: localStorage.getItem('esTeh_sales'), expenses: localStorage.getItem('esTeh_expenses'), kas: localStorage.getItem('esTeh_kas'), stok: localStorage.getItem('esTeh_gudang_v3') };
+            const str = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(obj));
+            const a = document.createElement('a'); a.setAttribute("href", str); a.setAttribute("download", `Backup_EsTehQoe_${formatSistemTanggal()}.json`);
+            document.body.appendChild(a); a.click(); a.remove();
+        }
+
+        function restoreData() {
+            const input = document.getElementById('file-restore');
+            if (input.files.length === 0) return alert("Pilih file cadangan .json terlebih dahulu!");
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (confirm("Sinkronisasi data sekarang? Data jualan lama di browser ini akan ditimpa.")) {
+                        if(data.sales) localStorage.setItem('esTeh_sales', data.sales);
+                        if(data.expenses) localStorage.setItem('esTeh_expenses', data.expenses);
+                        if(data.kas) localStorage.setItem('esTeh_kas', data.kas);
+                        if(data.stok) localStorage.setItem('esTeh_gudang_v3', data.stok);
+                        location.reload();
+                    }
+                } catch(err) {
+                    alert("Berkas gagal dipulihkan. Pastikan file berformat .json yang benar.");
+                }
+            };
+            reader.readAsText(input.files[0]);
+        }
+
+        window.onload = () => { 
+            initStokGudang();
+            renderMenuUtama(); 
+            updateDashboardSummary();
+        };
+    </script>
+</body>
+</html>

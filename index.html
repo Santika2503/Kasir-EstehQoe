@@ -238,23 +238,20 @@
 
         <!-- TAB 5: LAPORAN -->
         <div id="laporan" class="tab-content">
-            <div class="form-group">
-    <label>Tipe Laporan</label>
-    <select id="tipe-laporan" onchange="gantiInput()">
-        <option value="harian">Harian</option>
-        <option value="mingguan">Mingguan</option>
-        <option value="bulanan">Bulanan</option>
-    </select>
-</div>
-<div class="form-group">
-    <label id="label-teks">Pilih Tanggal</label>
-    <input type="date" id="filter-tanggal">
-</div>
-<button class="btn-submit" onclick="tampilkanLaporan()">🔎 Cari</button>
-
-</div>
-
+            <div class="card">
+                <div class="form-group">
+                    <label>Tipe Laporan</label>
+                    <select id="tipe-laporan" onchange="gantiInput()">
+                        <option value="harian">Harian</option>
+                        <option value="mingguan">Mingguan</option>
+                        <option value="bulanan">Bulanan</option>
+                    </select>
                 </div>
+                <div class="form-group">
+                    <label id="label-teks">Pilih Tanggal</label>
+                    <input type="date" id="filter-tanggal">
+                </div>
+                <button class="btn-submit" onclick="tampilkanLaporan()">🔎 Cari</button>
             </div>
 
             <div id="area-laporan" style="display:none;">

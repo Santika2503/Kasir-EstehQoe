@@ -26,11 +26,11 @@
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
         body { background-color: var(--light-bg); color: var(--dark); display: flex; flex-direction: column; min-height: 100vh; padding-bottom: 90px; }
         
-        /* --- HEADER DENGAN FONT HANDWRITTEN SANS-SERIF --- */
+        /* HEADER */
         header { background: var(--primary-grad); color: var(--white); padding: 25px 20px 20px; text-align: center; box-shadow: 0 4px 20px rgba(255, 159, 67, 0.3); border-radius: 0 0 24px 24px; position: relative; overflow: hidden; }
         header h1 { 
-            font-family: 'Caveat', 'Delius', cursive, sans-serif; /* Mengaktifkan font gaya tulisan tangan */
-            font-size: 36px; /* Ukuran disesuaikan agar font script terlihat jelas */
+            font-family: 'Caveat', 'Delius', cursive, sans-serif;
+            font-size: 36px;
             font-weight: 700; 
             letter-spacing: 0.5px; 
             text-shadow: 0 3px 6px rgba(0,0,0,0.15); 
@@ -39,7 +39,7 @@
             align-items: center; 
             justify-content: center; 
             gap: 8px; 
-            text-transform: none; /* Font handwritten lebih estetik jika tidak huruf besar semua */
+            text-transform: none;
         }
         header h1 .icon-logo { font-size: 32px; font-family: sans-serif; }
         header h1 .highlight { 
@@ -95,11 +95,12 @@
         .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #ced6e0; border-radius: 10px; font-size: 14px; background-color: #fafbfc; }
         .btn-submit { background: var(--primary-grad); color: white; border: none; width: 100%; padding: 12px; font-weight: 700; border-radius: 10px; cursor: pointer; }
         
-        /* STOK GRID */
+        /* STOK GRID DENGAN TOMBOL EDIT */
         .stok-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .stok-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid #f1f2f6; text-align: center; }
-        .stok-label { font-size: 11px; font-weight: 700; color: #7f8c8d; margin-bottom: 3px; }
-        .stok-val { font-size: 16px; font-weight: 800; color: #2c3e50; }
+        .stok-card { background: #fff; padding: 12px; border-radius: 12px; box-shadow: var(--shadow); border: 1px solid #f1f2f6; text-align: center; position: relative; }
+        .stok-label { font-size: 11px; font-weight: 700; color: #7f8c8d; margin-bottom: 3px; padding-right: 15px; }
+        .stok-val { font-size: 16px; font-weight: 800; color: #2c3e50; margin-bottom: 4px; }
+        .btn-edit-stok { background: #fff9db; color: #f59f00; border: 1px solid #ffe066; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; cursor: pointer; width: 80%; margin: 0 auto; display: block; }
 
         /* MODEL LAPORAN SAKU */
         .report-header-title { color: #f39c12; font-weight: 800; font-size: 15px; text-align: center; margin-top: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -177,10 +178,10 @@
             </div>
         </div>
 
-        <!-- TAB 3: STOK -->
+        <!-- TAB 3: STOK (BISA DIEDIT MANUAL SEKARANG) -->
         <div id="stok" class="tab-content">
             <div class="card">
-                <h3>📊 Sisa Ketersediaan Bahan Baku</h3>
+                <h3>📊 Sisa Ketersediaan Bahan Baku <span style="font-weight:normal; font-size:11px; color:#7f8c8d;">(Ketuk tombol untuk edit nilai)</span></h3>
                 <div class="stok-grid" id="container-monitoring-stok"></div>
             </div>
 
@@ -220,7 +221,6 @@
             </div>
 
             <div id="area-laporan" style="display:none;">
-                <!-- KOTAK LAPORAN UTAMA -->
                 <div class="card">
                     <h3 style="font-size:14px; border-bottom:1px solid #f1f2f6; padding-bottom:8px;">🔸 📊 Laporan Ringkasan</h3>
                     
@@ -457,14 +457,35 @@
             document.getElementById('pengeluaran-jumlah').value = '';
         }
 
+        // AKSI EDIT MANUAl ANGKA SISA KETERSEDIAAN BAHAN BAKU
+        function editNilaiStokLokal(keyBahan) {
+            let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
+            let currentVal = gudang[keyBahan];
+            
+            let inputBaru = prompt(`Ubah Jumlah Ketersediaan untuk:\n[ ${labelStok[keyBahan]} ]`, currentVal);
+            
+            if(inputBaru !== null && !isNaN(inputBaru) && inputBaru.trim() !== "") {
+                gudang[keyBahan] = Math.max(0, parseInt(inputBaru));
+                localStorage.setItem('esTeh_gudang_v3', JSON.stringify(gudang));
+                updateDisplayStok();
+            }
+        }
+
         function updateDisplayStok() {
             initStokGudang();
             let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
             const container = document.getElementById('container-monitoring-stok');
             container.innerHTML = '';
+            
             Object.keys(gudang).forEach(key => {
                 if (labelStok[key]) {
-                    container.innerHTML += `<div class="stok-card"><div class="stok-label">${labelStok[key]}</div><div class="stok-val">${gudang[key]}</div></div>`;
+                    container.innerHTML += `
+                        <div class="stok-card">
+                            <div class="stok-label">${labelStok[key]}</div>
+                            <div class="stok-val" id="val-stok-${key}">${gudang[key]}</div>
+                            <button class="btn-edit-stok" onclick="editNilaiStokLokal('${key}')">✏️ Ubah</button>
+                        </div>
+                    `;
                 }
             });
         }

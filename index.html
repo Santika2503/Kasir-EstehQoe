@@ -224,7 +224,7 @@
                 <div class="card">
                     <h3 style="font-size:14px; border-bottom:1px solid #f1f2f6; padding-bottom:8px;">🔸 📊 Laporan Ringkasan</h3>
                     
-                    <div class="report-header-title" id="lap-nama-cabang">ES TEH QOE CABANG UTAMA</div>
+                    <div class="report-header-title" id="lap-nama-cabang">ES TEH</div>
                     <div class="report-header-sub">Kasir Pengelola: <span id="lap-nama-kasir">Santika</span></div>
                     <div class="report-header-sub" style="color:#7f8c8d; font-weight:normal;">Periode: <span id="lap-periode-tgl">2026-07-08</span></div>
                     
@@ -251,7 +251,7 @@
                     <div class="form-row" style="margin-top:10px;">
                         <div class="form-group">
                             <label>Nama Cabang Usaha</label>
-                            <input type="text" id="cfg-nama-cabang" value="ES TEH QOE CABANG UTAMA" oninput="updateIdentitasToko()">
+                            <input type="text" id="cfg-nama-cabang" value="ES TEH QOE" oninput="updateIdentitasToko()">
                         </div>
                         <div class="form-group">
                             <label>Nama Pemilik / Kasir yang Bertugas</label>
@@ -270,7 +270,7 @@
     <footer>Es Teh Qoe &copy; 2026 | Aplikasi POS Dirancang Khusus Oleh <span class="watermark">Santika</span></footer>
 
     <script>
-        const masterMenus = [
+                const masterMenus = [
             { id: 1, name: "Es Teh Manis L", price: 5000, cup: "Cup 22", stockKey: "es_teh_manis" },
             { id: 2, name: "Es Teh Manis S", price: 3000, cup: "Cup 16", stockKey: "es_teh_manis" },
             { id: 3, name: "Es Teh Lemon", price: 7000, cup: "Cup 22", stockKey: "es_teh_lemon" },
@@ -409,7 +409,7 @@
             document.getElementById('cart-total-rp').innerText = formatMataUangRupiah(hitungTotal);
         }
 
-        function bayar() {
+                function bayar() {
             if (stateCart.length === 0) return alert("Keranjang kosong!");
             const kasirSekarang = localStorage.getItem('esTeh_active_kasir') || "Santika";
             const metodeBayar = document.getElementById('metode-pembayaran-kasir').value;
@@ -426,10 +426,14 @@
 
             const total = stateCart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             const dataSales = loadSistemData('esTeh_sales');
+            
+            // Logika penomoran urut: ambil jumlah data yang ada + 1
+            const newId = dataSales.length + 1;
+            
             const finalItems = stateCart.map(x => ({ name: x.name, price: x.price, qty: x.qty, cup: x.cup }));
             
             dataSales.push({
-                id: Date.now(),
+                id: newId,
                 date: formatSistemTanggal(),
                 time: new Date().toLocaleTimeString('id-ID', {hour: '2-digit', minute:'2-digit'}),
                 cashier: kasirSekarang,
@@ -444,6 +448,7 @@
             renderNotaKeranjang();
         }
 
+
         function simpanPengeluaran() {
             const tgl = document.getElementById('pengeluaran-tanggal').value;
             const ket = document.getElementById('pengeluaran-ket').value;
@@ -457,7 +462,6 @@
             document.getElementById('pengeluaran-jumlah').value = '';
         }
 
-        // AKSI EDIT MANUAl ANGKA SISA KETERSEDIAAN BAHAN BAKU
         function editNilaiStokLokal(keyBahan) {
             let gudang = JSON.parse(localStorage.getItem('esTeh_gudang_v3'));
             let currentVal = gudang[keyBahan];
@@ -507,7 +511,7 @@
             if(!tgl) return;
             document.getElementById('area-laporan').style.display = 'block';
 
-            const tokoName = localStorage.getItem('esTeh_nama_cabang') || "ES TEH QOE CABANG UTAMA";
+            const tokoName = localStorage.getItem('esTeh_nama_cabang') || "ES TEH QOE";
             const kasirName = localStorage.getItem('esTeh_active_kasir') || "Santika";
             const infoKas = loadSistemData('esTeh_kas_v3').find(x => x.date === tgl) || { amount: 0 };
             
@@ -563,11 +567,68 @@
                             <div class="report-list-sub">- Tunai: ${data.tunaiQty} Gelas</div>
                             <div class="report-list-sub">- QRIS: ${data.qrisQty} Gelas</div>
                         </div>
-                    `;
+                   `;
                 }
             });
+            
+            // Panggil fungsi riwayat di sini
+            tampilkanRiwayatTransaksi();
 
             if(!adaJualan) containerMenu.innerHTML = '<p style="color:#aaa; font-size:13px;">Belum ada menu terjual pada tanggal ini.</p>';
+        }
+
+        // --- FUNGSI GLOBAL DI LUAR TAMPILKAN LAPORAN ---
+                function tampilkanRiwayatTransaksi() {
+            const tgl = document.getElementById('filter-tanggal').value;
+            const container = document.getElementById('container-rincian-menu-terjual');
+            const listSales = loadSistemData('esTeh_sales').filter(x => x.date === tgl);
+            
+            container.innerHTML += '<h3 style="margin-top:20px; font-size:14px; border-bottom:1px solid #eee; padding-bottom:5px;">📜 Daftar Transaksi (Edit/Hapus):</h3>';
+            
+            listSales.forEach((s) => {
+                // Membuat string daftar menu yang dibeli
+                let rincianMenu = s.items.map(i => `${i.name} (${i.qty}x)`).join(', ');
+                
+                container.innerHTML += `
+                    <div style="background:#fff; border:1px solid #eee; padding:10px; margin-bottom:8px; border-radius:8px;">
+                        <div style="font-size:12px; margin-bottom:5px;">
+                            <b>No: ETQ-${String(s.id).padStart(6, '0')} | ${s.time} | ${s.method}</b>
+                        </div>
+                        <div style="font-size:12px; color:#57606f; margin-bottom:5px;">
+                            🛒 Menu: ${rincianMenu}
+                        </div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="font-weight:bold; font-size:13px;">Total: ${formatMataUangRupiah(s.total)}</div>
+                            <div>
+                                <button style="background:#54a0ff; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;" onclick="editTransaksi(${s.id})">Edit</button>
+                                <button style="background:#ee5253; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:10px; cursor:pointer;" onclick="hapusTransaksi(${s.id})">Hapus</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+
+        function hapusTransaksi(id) {
+            if(!confirm("Hapus transaksi ini?")) return;
+            let sales = loadSistemData('esTeh_sales');
+            sales = sales.filter(s => s.id !== id);
+            saveSistemData('esTeh_sales', sales);
+            tampilkanLaporan();
+            updateDashboardSummary();
+        }
+
+        function editTransaksi(id) {
+            let sales = loadSistemData('esTeh_sales');
+            let s = sales.find(x => x.id === id);
+            let nominalBaru = prompt("Ubah Total Nominal:", s.total);
+            if(nominalBaru !== null && !isNaN(nominalBaru)) {
+                s.total = parseInt(nominalBaru);
+                saveSistemData('esTeh_sales', sales);
+                tampilkanLaporan();
+                updateDashboardSummary();
+            }
         }
 
         function exportKeCSV() {
@@ -599,8 +660,14 @@
             reader.readAsText(input.files[0]);
         }
 
-        window.onload = () => { 
-            const savedCabang = localStorage.getItem('esTeh_nama_cabang') || "ES TEH QOE CABANG UTAMA";
+                window.onload = () => { 
+            // --- KODE PERAPIAN DATA LAMA ---
+            let sales = JSON.parse(localStorage.getItem('esTeh_sales')) || [];
+            sales.forEach((s, index) => { s.id = index + 1; });
+            localStorage.setItem('esTeh_sales', JSON.stringify(sales));
+            // -------------------------------
+
+            const savedCabang = localStorage.getItem('esTeh_nama_cabang') || "ES TEH QOE ";
             const savedKasir = localStorage.getItem('esTeh_active_kasir') || "Santika";
             document.getElementById('cfg-nama-cabang').value = savedCabang;
             document.getElementById('cfg-nama-kasir').value = savedKasir;
@@ -612,6 +679,8 @@
             renderMenuUtama(); 
             updateDashboardSummary();
         };
+
+
     </script>
 </body>
 </html>
